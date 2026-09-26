@@ -1,0 +1,31 @@
+{
+  "name": "codesistency-auth-tutorial",
+  "version": "1.0.0",
+  "description": "Project to explore auth athentication and password recovery in a MERN stack.",
+  "main": "backend/index.js",
+  "scripts": {
+    "dev":"nodemon backend/index.js"
+  },
+  "keywords": [
+    "MERN",
+    "auth",
+    "password",
+    "reset"
+  ],
+  "author": "camreynolds",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "crypto": "^1.0.1",
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mailtrap": "^4.10.0",
+    "mongoose": "^9.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
