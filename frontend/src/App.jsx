@@ -3,8 +3,21 @@ import FloatingShape from './components/FloatingShape';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
+import {Toaster} from "react-hot-toast";
+import { useAuthStore } from './store/authStore';
+import { useEffect } from 'react';
 
 function App() {
+
+  const {isCheckingAuth,checkAuth,isAuthenticated,user} = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  },[checkAuth]);
+
+  console.log("Is Authenticated:", isAuthenticated);
+  console.log("User: ", user);    
+
   return (
     <div 
       className="min-h-screen bg-gradient-to-br 
@@ -21,7 +34,7 @@ function App() {
         <Route path="/login" element={<LoginPage/>} />
         <Route path="/verify-email" element={<EmailVerificationPage/>} />
       </Routes>
-
+      <Toaster/>
       </div>
     )
 }
