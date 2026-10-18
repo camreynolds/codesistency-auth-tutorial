@@ -6,6 +6,8 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
 
+import LoadingSpinner from './components/LoadingSpinner'
+
 import {Toaster} from "react-hot-toast";
 import { useAuthStore } from './store/authStore';
 import { useEffect } from 'react';
@@ -44,8 +46,7 @@ function App() {
     checkAuth();
   },[checkAuth]);
 
-  console.log("Is Authenticated:", isAuthenticated);
-  console.log("User: ", user);    
+  if(isCheckingAuth) return <LoadingSpinner/>;
 
   return (
     <div 
