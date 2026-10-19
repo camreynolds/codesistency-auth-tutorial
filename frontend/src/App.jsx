@@ -5,6 +5,8 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import EmailVerificationPage from './pages/EmailVerificationPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 import LoadingSpinner from './components/LoadingSpinner'
 
@@ -40,7 +42,7 @@ const RedirectAuthenticatedUser = ({children}) => {
 
 function App() {
 
-  const {isCheckingAuth,checkAuth,isAuthenticated,user} = useAuthStore();
+  const {isCheckingAuth,checkAuth} = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -59,6 +61,7 @@ function App() {
       <FloatingShape color="bg-lime-500" size="w-32 h-32" top="40%" left="10%" delay={2} />
       
       <Routes>
+
         <Route 
           path="/" 
           element={
@@ -67,6 +70,7 @@ function App() {
             </ProtectRoute>
             }
           />
+
         <Route 
           path="/signup" 
           element={
@@ -75,6 +79,7 @@ function App() {
             </RedirectAuthenticatedUser> 
           }
         />
+
         <Route 
           path="/login" 
           element={
@@ -83,7 +88,32 @@ function App() {
             </RedirectAuthenticatedUser> 
           }
         />
-        <Route path="/verify-email" element={<EmailVerificationPage/>} />
+
+        <Route 
+          path="/verify-email" 
+          element={
+            <EmailVerificationPage/>
+          } 
+        />
+
+        <Route 
+          path="/forgot-password" 
+          element={
+          <RedirectAuthenticatedUser>
+            <ForgotPasswordPage/>
+          </RedirectAuthenticatedUser>
+          }
+        />
+
+        <Route
+          path='/reset-password/:token'
+          element={
+            <RedirectAuthenticatedUser>
+              <ResetPasswordPage/>
+            </RedirectAuthenticatedUser>
+          }
+        />
+
       </Routes>
       <Toaster/>
       </div>
