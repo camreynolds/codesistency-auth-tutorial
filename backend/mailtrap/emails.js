@@ -1,5 +1,5 @@
 import {PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE} from "./emailTemplates.js"
-import { client, sender, recipients } from "./mailtrap.config.js"
+import { client, sender } from "./mailtrap.config.js"
 
 export const sendVerificationEmail = async (email,verificationToken)=>{
   const recipient = [{email}];
@@ -7,7 +7,7 @@ export const sendVerificationEmail = async (email,verificationToken)=>{
   try{
     const response = await client.send({
       from:sender,
-      to:recipients,
+      to:recipient,
       subject: "Verify your email",
       html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}",verificationToken),
       category: "Email verification",
@@ -26,7 +26,7 @@ export const sendWelcomeEmail = async (email,name)=>{
   try {
     const response = await client.send({
       from: sender,
-      to: recipients,
+      to: recipient,
       template_uuid:"db833fd9-1fa4-481b-8d3b-d465e416e6bf",
       template_variables:{
         company_info_name:"Famuca Co.",
@@ -45,7 +45,7 @@ export const sendPasswordResetEmail = async(email,resetURL)=>{
   try {
     const response = await client.send({
       from: sender,
-      to: recipients,
+      to: recipient,
       subject: "Reset your password.",
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}",resetURL),
       category: "Password Reset",
@@ -57,12 +57,12 @@ export const sendPasswordResetEmail = async(email,resetURL)=>{
 };
 
 export const sendResetSuccessEmail = async(email)=>{
-  const recipients = [{email}];
+  const recipient = [{email}];
   
   try {
     const response = await client.send({
       from: sender,
-      to: recipients,
+      to: recipient,
       subject: "Password Reset Sucessfully!",
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
       category: "Password Reset",
