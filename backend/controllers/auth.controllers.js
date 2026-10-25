@@ -5,6 +5,11 @@ import { generateVerificationToken } from "../utils/generateVerificationToken.js
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { sendVerificationEmail,sendWelcomeEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../mailtrap/emails.js"
 
+// Valid bcrypt hash used to equalize login timing: when no user is found we
+// still run a bcrypt.compare against this dummy hash, so a non-existent email
+// takes the same time as a wrong password and doesn't leak account existence.
+const DUMMY_PASSWORD_HASH = bcryptjs.hashSync("dummy-password", 10);
+
 export const signup = async (req,res)=>{
   const {email,password,name} = req.body;
   
@@ -86,13 +91,14 @@ export const login = async (req,res)=>{
 
   try {
     const user = await User.findOne({email});
-    if(!user){
-      return res.status(400).json({success: false, message:"Invalid credentials."});
-    }
 
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
-    if(!isPasswordValid){
-      return res.status(400).json({success: false, message:"Invalid credentials"});
+    // Timing equalization: always run bcrypt.compare — against a dummy hash
+    // when the user is missing — so the response time doesn't reveal whether
+    // an account exists (previously a missing user returned early).
+    const isPasswordValid = await bcryptjs.compare(password, user ? user.password : DUMMY_PASSWORD_HASH);
+
+    if(!user || !isPasswordValid){
+      return res.status(400).json({success: false, message:"Invalid credentials."});
     }
 
     generateTokenAndSetCookie(res,user._id);
