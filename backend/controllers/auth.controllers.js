@@ -26,7 +26,7 @@ export const signup = async (req,res)=>{
       password: hashedPassword,
       name,
       verificationToken,
-      verificationTokenExpiredAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+      verificationTokenExpiredAt: Date.now() + 15 * 60 * 1000, // 15 minutes (was 24 hours; now matches the email template copy)
     })
     
     await user.save();
