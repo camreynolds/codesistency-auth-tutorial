@@ -6,14 +6,16 @@ export const verifyToken = (req,res,next)=>{
     return res.status(401).json({success: false, message:"Unauthorized - no token provided."});
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    if(!decode) return res.status(401).json({success: false, message: "Unauthorized - invalid token."});
-        
-    req.userId = decode.userId;
+    // jwt.verify throws on invalid/expired tokens, so there is no falsy result
+    // to check here (the old `if(!decode)` guard was dead code).
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
     next();
   }
   catch (error) {
+    // An invalid/expired token is a client problem (401), not a server error
+    // (500) — previously this returned 500, which misled clients and monitors.
     console.error("Error in verifyToken.",error);
-    return res.status(500).json({success:false, message:"Server error."});    
+    return res.status(401).json({success:false, message:"Unauthorized - invalid or expired token."});
   }
 };

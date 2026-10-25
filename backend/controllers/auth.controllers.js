@@ -43,10 +43,7 @@ export const signup = async (req,res)=>{
     res.status(201).json({
       success: true,
       message: "User created successfully",
-      user: {
-        ...user._doc,
-        password:undefined
-      }
+      user, // sanitized by the schema's toJSON transform (no password/tokens)
     });
   }catch(error){
     res.status(400).json({success:false, message:error.message});
@@ -76,10 +73,7 @@ export const verifyEmail = async (req,res)=>{
     res.status(200).json({
       success: true,
       message: "Email verified successfully",
-      user:{
-        ...user._doc,
-        password: undefined,
-      }
+      user, // sanitized by the schema's toJSON transform (no password/tokens)
     })
   } catch (error) {
     console.log("Error in verifyEmail: ",error);    
@@ -109,10 +103,7 @@ export const login = async (req,res)=>{
     res.status(200).json({
       success: true,
       message: "Logged successfully.",
-      user:{
-        ...user._doc,
-        password: undefined,
-      }
+      user, // sanitized by the schema's toJSON transform (no password/tokens)
     })
   } catch (error) {
     console.error("Error in login: ",error);
