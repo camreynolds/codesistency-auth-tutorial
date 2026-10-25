@@ -15,7 +15,11 @@ export const signup = async (req,res)=>{
     
     const userAlreadyExist = await User.findOne({email});
     if(userAlreadyExist){
-      return res.status(400).json({success:false, message:"User already exists."})
+      // Anti-enumeration: return a generic message instead of "User already
+      // exists." so this endpoint can't be used to probe which emails are
+      // registered. (Trade-off: a user who already has an account is told to
+      // retry rather than being told directly to log in.)
+      return res.status(400).json({success:false, message:"Unable to create account."})
     }
     
     const hashedPassword = await bcryptjs.hash(password,10);
@@ -126,23 +130,26 @@ export const forgotPassword = async (req,res)=>{
 
   try {
     const user = await User.findOne({email});
-    if(!user){
-      return res.status(400).json({success:false, message:"User not found."})
+
+    // Anti-enumeration: always return the same generic response whether or
+    // not the account exists, so this endpoint can't be used to discover
+    // registered emails. (Previously it returned "User not found.".) Only
+    // send the reset email when the account actually exists.
+    if (user) {
+      //Generate reset token
+      const resetToken = crypto.randomBytes(20).toString("hex");
+      const resetTokenExpiredAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour.
+
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpiredAt = resetTokenExpiredAt;
+
+      await user.save();
+
+      // send email
+      await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
     }
 
-    //Generate reset token
-    const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiredAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour.
-
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiredAt = resetTokenExpiredAt;
-
-    await user.save();
-
-    // send email
-    await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
-
-    res.status(200).json({success: true, message:"Password reset link sent to your email."})
+    res.status(200).json({success: true, message:"If an account exists for that email, a password reset link has been sent."})
   } catch (error) {
     console.error("Error in forgotPassword ",error);
     res.status(400).json({success: false, message:error.message});
