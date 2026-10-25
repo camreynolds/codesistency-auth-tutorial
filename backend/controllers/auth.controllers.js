@@ -131,12 +131,16 @@ export const forgotPassword = async (req,res)=>{
       const resetToken = crypto.randomBytes(20).toString("hex");
       const resetTokenExpiredAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour.
 
-      user.resetPasswordToken = resetToken;
+      // Store only a SHA-256 hash of the token so a database leak can't expose
+      // usable reset links. The plaintext token is sent only in the email.
+      const hashedResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+      user.resetPasswordToken = hashedResetToken;
       user.resetPasswordExpiredAt = resetTokenExpiredAt;
 
       await user.save();
 
-      // send email
+      // send email (plaintext token, not the hash)
       await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
     }
 
@@ -152,13 +156,17 @@ export const resetPassword = async(req,res)=>{
     const {token} = req.params;
     const {password} = req.body;
 
+    // Hash the incoming token the same way it was hashed on issue, so it can
+    // be matched against the stored hash (the plaintext token is never saved).
+    const hashedResetToken = crypto.createHash("sha256").update(token).digest("hex");
+
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: hashedResetToken,
       resetPasswordExpiredAt: {$gt: Date.now()},
     })
 
     if(!user){
-      return res.status(400).json({status: false, message:"Invalid or expired reset token."});
+      return res.status(400).json({success: false, message:"Invalid or expired reset token."});
     }
 
     //update password
@@ -174,7 +182,7 @@ export const resetPassword = async(req,res)=>{
     res.status(200).json({success: true, message:"Password reset successfully."});
   } catch (error) {
     console.error("Error in reset password", error);
-    res.status(400).json({sucess:false, message:error.message});    
+    res.status(400).json({success:false, message:error.message});
   }
 };
 
