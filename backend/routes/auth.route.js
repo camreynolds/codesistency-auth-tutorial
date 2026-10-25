@@ -17,15 +17,24 @@ import {
   verifyEmailLimiter,
   forgotPasswordLimiter,
 } from "../middleware/rateLimiter.js";
+// Input validation added to enforce email format, password length, etc.
+import {
+  handleValidationErrors,
+  signupValidation,
+  loginValidation,
+  verifyEmailValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
+} from "../middleware/validation.js";
 
 const router = express.Router();
 
 router.get("/check-auth",verifyToken,checkAuth);
-router.post("/signup",signupLimiter,signup);
-router.post("/login",loginLimiter,login);
+router.post("/signup",signupLimiter,signupValidation,handleValidationErrors,signup);
+router.post("/login",loginLimiter,loginValidation,handleValidationErrors,login);
 router.post("/logout",authLimiter,logout);
-router.post("/verify-email",verifyEmailLimiter,verifyEmail);
-router.post("/forgot-password",forgotPasswordLimiter,forgotPassword);
-router.post("/reset-password/:token",authLimiter,resetPassword);
+router.post("/verify-email",verifyEmailLimiter,verifyEmailValidation,handleValidationErrors,verifyEmail);
+router.post("/forgot-password",forgotPasswordLimiter,forgotPasswordValidation,handleValidationErrors,forgotPassword);
+router.post("/reset-password/:token",authLimiter,resetPasswordValidation,handleValidationErrors,resetPassword);
 
 export default router;

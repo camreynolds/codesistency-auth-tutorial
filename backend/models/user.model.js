@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema({
     type:String,
     required:true,
     unique:true,
+    trim:true,
+    maxlength:254,
   },
   password:{
     type:String,
@@ -13,6 +15,8 @@ const userSchema = new mongoose.Schema({
   name:{
     type:String,
     required:true,
+    trim:true,
+    maxlength:100,
   },
   lastLogin:{
     type:Date,
