@@ -51,6 +51,10 @@ export const signup = async (req,res)=>{
       user, // sanitized by the schema's toJSON transform (no password/tokens)
     });
   }catch(error){
+    // Handle race condition: duplicate email (MongoDB E11000)
+    if (error.code === 11000) {
+      return res.status(400).json({success: false, message: "Unable to create account."});
+    }
     res.status(400).json({success:false, message:error.message});
   }
 };

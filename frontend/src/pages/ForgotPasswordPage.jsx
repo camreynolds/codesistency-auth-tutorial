@@ -7,13 +7,13 @@ import Input from "../components/Input";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const [isSubmmitted, setIsSubmmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const {isLoading, forgotPassword} = useAuthStore();
 
-  const handleSubmmit = async (e) => {
+  const handleSubmit = async (e) => {
 		e.preventDefault();
 		await forgotPassword(email);
-		setIsSubmmitted(true);
+		setIsSubmitted(true);
 	};
 
   return (
@@ -28,8 +28,8 @@ const ForgotPasswordPage = () => {
 					Forgot Password
 				</h2>
 
-        {!isSubmmitted ? (
-          <form onSubmit={handleSubmmit}>
+        {!isSubmitted ? (
+          <form onSubmit={handleSubmit}>
             <p className="text-gray-300 mb-6 text-center">
               Enter your email address and we'll send you a link to reset your password.
             </p>

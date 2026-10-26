@@ -25,14 +25,14 @@ const ResetPasswordPage = () => {
 
     try {
       await resetPassword(token,password);
-      toast.success("Password reset successfully!, redirenting to login page...");
+      toast.success("Password reset successfully!, redirecting to login page...");
   
       setTimeout( () =>{
         navigate("/login");
       },2000);
     } catch (error) {
       console.error(error);
-      toast.error( error.message || "Error reseting password.");
+      toast.error( error.message || "Error resetting password.");
     };
   };
 

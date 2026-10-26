@@ -1,7 +1,4 @@
 import { MailtrapClient } from "mailtrap";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const TOKEN = process.env.SENDING_ONBOARDING_API_TOKEN;
 const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN;
