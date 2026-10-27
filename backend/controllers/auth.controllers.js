@@ -92,10 +92,12 @@ export const resendVerificationEmail = async (req,res)=>{
 };
 
 export const verifyEmail = async (req,res)=>{
-  const {code} = req.body;
+  const {email,code} = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
     const user = await User.findOne({
+      email:normalizedEmail,
       verificationToken: code,
       verificationTokenExpiredAt: {$gt: Date.now()}
     })

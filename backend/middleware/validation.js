@@ -39,6 +39,9 @@ export const loginValidation = [
 ];
 
 export const verifyEmailValidation = [
+  body("email").trim().toLowerCase().notEmpty().withMessage("Email is required.")
+    .isEmail().withMessage("Please provide a valid email.")
+    .isLength({ max: 254 }).withMessage("Email must be 254 characters or fewer."),
   body("code").trim().matches(/^\d{6}$/).withMessage("Verification code must be a 6-digit number."),
 ];
 

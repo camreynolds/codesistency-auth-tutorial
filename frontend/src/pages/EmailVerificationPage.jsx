@@ -49,13 +49,13 @@ const EmailVerificationPage = () => {
     e.preventDefault();
     const verificationCode = code.join("");
     try {
-      await verifyEmail(verificationCode);
+      await verifyEmail(email, verificationCode);
       navigate("/");
       toast.success("Email verified successfully!");
     } catch (error) {
       console.error("Error verifying email: ",error);
     }
-  }, [code, verifyEmail, navigate]);
+  }, [code, email, verifyEmail, navigate]);
 
   const handleResend = async () => {
     try {
@@ -87,6 +87,15 @@ const EmailVerificationPage = () => {
       <p className="text-center text-gray-300 mb-6">Enter the 6-digit code sent to your email address.</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email address"
+          aria-label="Email address for verification code"
+          required
+          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
+        />
         <div className="flex justify-between">
           {code.map((digit,index) => (
             <input 
@@ -108,7 +117,7 @@ const EmailVerificationPage = () => {
           whileHover = {{scale: 1.05}}
           whileTap = {{scale: 0.95}}
           type = "submit"
-          disabled = {isLoading || code.some((digit) => !digit)}
+          disabled = {isLoading || !email || code.some((digit) => !digit)}
           className='w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-green-600 
           hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50'
         >
@@ -116,15 +125,6 @@ const EmailVerificationPage = () => {
         </motion.button>
       </form>
       <div className="mt-6 space-y-3">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email address"
-          aria-label="Email address for verification code"
-          required
-          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
-        />
         <button
           type="button"
           onClick={handleResend}
