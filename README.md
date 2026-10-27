@@ -35,6 +35,12 @@ Este proyecto está basado en los conceptos, arquitectura y desarrollo paso a pa
 
 *   **Database Setup**: Conexión a MongoDB mediante Mongoose, definición de esquemas de usuario con validaciones y marcas de tiempo (`timestamps`) automáticas.
 
+### Production deployment notes
+
+* Set `JWT_SECRET` to a generated secret, never the placeholder in `.env.example`.
+* Set `CLIENT_URL` to the exact frontend origin. The authentication cookie uses `SameSite=Strict`, so deploy the frontend and API on the same site (subdomains of the same registrable domain are same-site).
+* Email addresses are now normalized to lowercase. Before deploying this change against an existing database, back up the data, find addresses that collide after lowercasing, resolve those accounts, and migrate the remaining addresses to lowercase. Do not apply a case-insensitive unique index until duplicates are resolved.
+
 ---
 
 ## 🔐 Endpoints de Autenticación y Seguridad

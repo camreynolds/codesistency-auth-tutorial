@@ -26,14 +26,14 @@ const passwordValidation = () => body("password")
 export const signupValidation = [
   body("name").trim().notEmpty().withMessage("Name is required.")
     .isLength({ max: 100 }).withMessage("Name must be 100 characters or fewer."),
-  body("email").trim().notEmpty().withMessage("Email is required.")
+  body("email").trim().toLowerCase().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email.")
     .isLength({ max: 254 }).withMessage("Email must be 254 characters or fewer."),
   passwordValidation(),
 ];
 
 export const loginValidation = [
-  body("email").trim().notEmpty().withMessage("Email is required.")
+  body("email").trim().toLowerCase().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email."),
   passwordValidation(),
 ];
@@ -43,12 +43,12 @@ export const verifyEmailValidation = [
 ];
 
 export const forgotPasswordValidation = [
-  body("email").trim().notEmpty().withMessage("Email is required.")
+  body("email").trim().toLowerCase().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email."),
 ];
 
 export const resendVerificationValidation = [
-  body("email").trim().notEmpty().withMessage("Email is required.")
+  body("email").trim().toLowerCase().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email.")
     .isLength({ max: 254 }).withMessage("Email must be 254 characters or fewer."),
 ];

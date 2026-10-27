@@ -12,13 +12,14 @@ const DUMMY_PASSWORD_HASH = bcryptjs.hashSync("dummy-password", 10);
 
 export const signup = async (req,res)=>{
   const {email,password,name} = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
   
   try{
     if(!email || !password || !name){
       throw new Error("All fields are required.")
     }
     
-    const userAlreadyExist = await User.findOne({email});
+    const userAlreadyExist = await User.findOne({email:normalizedEmail});
     if(userAlreadyExist){
       // Anti-enumeration: return a generic message instead of "User already
       // exists." so this endpoint can't be used to probe which emails are
@@ -31,7 +32,7 @@ export const signup = async (req,res)=>{
     const verificationToken = generateVerificationToken();
     
     const user = new User({
-      email,
+      email:normalizedEmail,
       password: hashedPassword,
       name,
       verificationToken,
@@ -63,9 +64,10 @@ export const signup = async (req,res)=>{
 
 export const resendVerificationEmail = async (req,res)=>{
   const {email} = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    const user = await User.findOne({email, isVerified:false});
+    const user = await User.findOne({email:normalizedEmail, isVerified:false});
     if (user) {
       const verificationToken = generateVerificationToken();
       user.verificationToken = verificationToken;
@@ -127,9 +129,10 @@ export const verifyEmail = async (req,res)=>{
 
 export const login = async (req,res)=>{
   const {email,password} = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    const user = await User.findOne({email});
+    const user = await User.findOne({email:normalizedEmail});
 
     // Timing equalization: always run bcrypt.compare — against a dummy hash
     // when the user is missing — so the response time doesn't reveal whether
@@ -160,15 +163,26 @@ export const login = async (req,res)=>{
 };
 
 export const logout = async (req,res)=>{
-  res.clearCookie("token");
-  res.status(200).json({success:true, message:"Logged out successfully."});
+  try {
+    await User.findByIdAndUpdate(req.userId, {$inc:{tokenVersion:1}});
+    res.clearCookie("token", {
+      httpOnly:true,
+      secure:process.env.NODE_ENV === "production",
+      sameSite:"strict",
+    });
+    return res.status(200).json({success:true, message:"Logged out successfully."});
+  } catch (error) {
+    console.error("Error in logout:", error);
+    return res.status(500).json({success:false, message:"Unable to log out. Please try again."});
+  }
 };
 
 export const forgotPassword = async (req,res)=>{
   const {email} = req.body
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    const user = await User.findOne({email});
+    const user = await User.findOne({email:normalizedEmail});
 
     // Anti-enumeration: always return the same generic response whether or
     // not the account exists, so this endpoint can't be used to discover
@@ -230,7 +244,11 @@ export const resetPassword = async(req,res)=>{
     user.resetPasswordExpiredAt = undefined;
     await user.save();
 
-    await sendResetSuccessEmail(user.email);
+    try {
+      await sendResetSuccessEmail(user.email);
+    } catch (error) {
+      console.error("Error sending password reset confirmation email:", error);
+    }
 
     res.status(200).json({success: true, message:"Password reset successfully."});
   } catch (error) {

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     required:true,
     unique:true,
     trim:true,
+    lowercase:true,
     maxlength:254,
   },
   password:{
@@ -35,6 +36,9 @@ const userSchema = new mongoose.Schema({
   verificationToken: String,
   verificationTokenExpiredAt: Date,
 },{timestamps:true});
+
+userSchema.index({verificationToken:1}, {sparse:true});
+userSchema.index({resetPasswordToken:1}, {sparse:true});
 
 // Strip sensitive/internal fields from JSON responses (password hash, tokens,
 // __v) so they can never leak via res.json(). Previously the controllers

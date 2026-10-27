@@ -10,7 +10,11 @@ import authRoutes from "./routes/auth.route.js";
 
 // Fail fast if the JWT signing secret is missing or too weak, so tokens are
 // never signed with a guessable secret.
-if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+if (
+  !process.env.JWT_SECRET ||
+  process.env.JWT_SECRET.length < 32 ||
+  process.env.JWT_SECRET === "replace_with_a_random_48_byte_hex_string"
+) {
   throw new Error(
     "JWT_SECRET must be set to a random string of at least 32 characters (use crypto.randomBytes(48) to generate one)."
   );
