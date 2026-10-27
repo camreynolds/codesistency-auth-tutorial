@@ -40,10 +40,11 @@ export const signup = async (req,res)=>{
     
     await user.save();
     
-    //jwt
-    generateTokenAndSetCookie(res,user._id);
-    
-    await sendVerificationEmail(user.email,verificationToken);
+    try {
+      await sendVerificationEmail(user.email,verificationToken);
+    } catch (error) {
+      console.error("Error sending signup verification email:", error);
+    }
 
     res.status(201).json({
       success: true,
@@ -55,7 +56,36 @@ export const signup = async (req,res)=>{
     if (error.code === 11000) {
       return res.status(400).json({success: false, message: "Unable to create account."});
     }
-    res.status(400).json({success:false, message:error.message});
+    console.error("Error in signup:", error);
+    res.status(500).json({success:false, message:"Unable to create account. Please try again."});
+  }
+};
+
+export const resendVerificationEmail = async (req,res)=>{
+  const {email} = req.body;
+
+  try {
+    const user = await User.findOne({email, isVerified:false});
+    if (user) {
+      const verificationToken = generateVerificationToken();
+      user.verificationToken = verificationToken;
+      user.verificationTokenExpiredAt = Date.now() + 15 * 60 * 1000;
+      await user.save();
+
+      try {
+        await sendVerificationEmail(user.email,verificationToken);
+      } catch (error) {
+        console.error("Error resending verification email:", error);
+      }
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"If an unverified account exists for that email, a verification code has been sent.",
+    });
+  } catch (error) {
+    console.error("Error in resendVerificationEmail:", error);
+    return res.status(500).json({success:false, message:"Unable to send a verification code. Please try again."});
   }
 };
 
@@ -77,7 +107,12 @@ export const verifyEmail = async (req,res)=>{
     user.verificationTokenExpiredAt = undefined,
     await user.save();
 
-    await sendWelcomeEmail(user.email, user.name);
+    generateTokenAndSetCookie(res,user._id,user.tokenVersion);
+    try {
+      await sendWelcomeEmail(user.email, user.name);
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+    }
 
     res.status(200).json({
       success: true,
@@ -105,10 +140,13 @@ export const login = async (req,res)=>{
       return res.status(400).json({success: false, message:"Invalid credentials."});
     }
 
-    generateTokenAndSetCookie(res,user._id);
+    if (!user.isVerified) {
+      return res.status(403).json({success:false, message:"Please verify your email before logging in."});
+    }
 
     user.lastLogin = new Date();
     await user.save();
+    generateTokenAndSetCookie(res,user._id,user.tokenVersion);
 
     res.status(200).json({
       success: true,
@@ -151,7 +189,11 @@ export const forgotPassword = async (req,res)=>{
       await user.save();
 
       // send email (plaintext token, not the hash)
-      await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
+      try {
+        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
+      } catch (error) {
+        console.error("Error sending password reset email:", error);
+      }
     }
 
     res.status(200).json({success: true, message:"If an account exists for that email, a password reset link has been sent."})
@@ -183,6 +225,7 @@ export const resetPassword = async(req,res)=>{
     const hashedPassword = await bcryptjs.hash(password,10);
 
     user.password = hashedPassword;
+    user.tokenVersion += 1;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiredAt = undefined;
     await user.save();

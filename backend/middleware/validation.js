@@ -15,20 +15,27 @@ export const handleValidationErrors = (req, res, next) => {
   next();
 };
 
+const passwordValidation = () => body("password")
+  .isString().withMessage("Password must be text.")
+  .bail()
+  .isLength({ min: 6 }).withMessage("Password must be at least 6 characters.")
+  .bail()
+  .custom((password) => Buffer.byteLength(password, "utf8") <= 72)
+  .withMessage("Password must be 72 UTF-8 bytes or fewer.");
+
 export const signupValidation = [
   body("name").trim().notEmpty().withMessage("Name is required.")
     .isLength({ max: 100 }).withMessage("Name must be 100 characters or fewer."),
   body("email").trim().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email.")
     .isLength({ max: 254 }).withMessage("Email must be 254 characters or fewer."),
-  body("password").isLength({ min: 6, max: 72 })
-    .withMessage("Password must be between 6 and 72 characters."),
+  passwordValidation(),
 ];
 
 export const loginValidation = [
   body("email").trim().notEmpty().withMessage("Email is required.")
     .isEmail().withMessage("Please provide a valid email."),
-  body("password").notEmpty().withMessage("Password is required."),
+  passwordValidation(),
 ];
 
 export const verifyEmailValidation = [
@@ -40,8 +47,13 @@ export const forgotPasswordValidation = [
     .isEmail().withMessage("Please provide a valid email."),
 ];
 
+export const resendVerificationValidation = [
+  body("email").trim().notEmpty().withMessage("Email is required.")
+    .isEmail().withMessage("Please provide a valid email.")
+    .isLength({ max: 254 }).withMessage("Email must be 254 characters or fewer."),
+];
+
 export const resetPasswordValidation = [
   param("token").notEmpty().withMessage("Reset token is required."),
-  body("password").isLength({ min: 6, max: 72 })
-    .withMessage("Password must be between 6 and 72 characters."),
+  passwordValidation(),
 ];

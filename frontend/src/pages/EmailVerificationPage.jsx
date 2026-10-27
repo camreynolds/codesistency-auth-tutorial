@@ -1,4 +1,4 @@
-import {useRef, useState, useEffect} from "react";
+import {useRef, useState, useEffect, useCallback} from "react";
 import {useNavigate} from "react-router-dom";
 import {motion} from "framer-motion";
 import {useAuthStore} from "../store/authStore";
@@ -10,7 +10,8 @@ const EmailVerificationPage = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   
-  const {error, isLoading, verifyEmail} = useAuthStore();
+  const {error, isLoading, signupEmail, verifyEmail, resendVerification} = useAuthStore();
+  const [email, setEmail] = useState(signupEmail);
 
   const handleChange = (index,value) => {
   const newCode = [...code];
@@ -44,7 +45,7 @@ const EmailVerificationPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     const verificationCode = code.join("");
     try {
@@ -54,6 +55,15 @@ const EmailVerificationPage = () => {
     } catch (error) {
       console.error("Error verifying email: ",error);
     }
+  }, [code, verifyEmail, navigate]);
+
+  const handleResend = async () => {
+    try {
+      await resendVerification(email);
+      toast.success("If an unverified account exists, a new code has been sent.");
+    } catch (error) {
+      console.error("Error resending verification email:",error);
+    }
   };
 
   // Auto submit when all fields are filled.
@@ -61,7 +71,7 @@ const EmailVerificationPage = () => {
     if(code.every(digit => digit !== "")) {
       handleSubmit(new Event("submit"));
     }
-  },[code]);
+  },[code, handleSubmit]);
 
   return (
     <div className='max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'>
@@ -105,6 +115,25 @@ const EmailVerificationPage = () => {
           {isLoading ? "Verifying..." : "Verify Email"}
         </motion.button>
       </form>
+      <div className="mt-6 space-y-3">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email address"
+          aria-label="Email address for verification code"
+          required
+          className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={isLoading || !email}
+          className="w-full text-green-400 hover:underline disabled:opacity-50"
+        >
+          Resend verification code
+        </button>
+      </div>
     </motion.div> 
     </div>
   )

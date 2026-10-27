@@ -30,7 +30,7 @@ app.use(cookieParser()); // allows us to parse incoming cookies.
 
 app.use("/api/auth/", authRoutes);
 
+await connectDB();
 app.listen(PORT,()=>{
-  connectDB();
   console.log("Server is running on port:",PORT);
 });

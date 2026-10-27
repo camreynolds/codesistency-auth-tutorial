@@ -4,6 +4,7 @@ import {
   login,
   logout,
   verifyEmail,
+  resendVerificationEmail,
   forgotPassword,
   resetPassword,
   checkAuth
@@ -23,6 +24,7 @@ import {
   signupValidation,
   loginValidation,
   verifyEmailValidation,
+  resendVerificationValidation,
   forgotPasswordValidation,
   resetPasswordValidation,
 } from "../middleware/validation.js";
@@ -34,6 +36,7 @@ router.post("/signup",signupLimiter,signupValidation,handleValidationErrors,sign
 router.post("/login",loginLimiter,loginValidation,handleValidationErrors,login);
 router.post("/logout",authLimiter,logout);
 router.post("/verify-email",verifyEmailLimiter,verifyEmailValidation,handleValidationErrors,verifyEmail);
+router.post("/resend-verification",forgotPasswordLimiter,resendVerificationValidation,handleValidationErrors,resendVerificationEmail);
 router.post("/forgot-password",forgotPasswordLimiter,forgotPasswordValidation,handleValidationErrors,forgotPassword);
 router.post("/reset-password/:token",authLimiter,resetPasswordValidation,handleValidationErrors,resetPassword);
 

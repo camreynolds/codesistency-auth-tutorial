@@ -12,14 +12,15 @@ export const useAuthStore = create((set) => ({
   isLoading: false,
   isCheckingAuth: true,
   message: null,
+  signupEmail: "",
 
   signup: async (email,password,name) => {
     set({isLoading:true, error:null});
     try {
       const response = await axios.post(`${API_URL}/signup`,{email,password,name});
-      set({user:response.data.user, isAuthenticated:true, isLoading:false});
+      set({user:response.data.user, isAuthenticated:false, signupEmail:email, isLoading:false});
     } catch (error) {
-      set({error: error.response.data.message || "Error signing up", isLoading:false});
+      set({error: error.response?.data?.message || "Error signing up", isLoading:false});
       throw error;
     }
   },
@@ -65,7 +66,22 @@ export const useAuthStore = create((set) => ({
       return response.data
     } catch (error) {
       set({
-        error: error.response.data.message || "Error verifying email",
+        error: error.response?.data?.message || "Error verifying email",
+        isLoading:false,
+      });
+      throw error;
+    }
+  },
+
+  resendVerification: async (email) => {
+    set({isLoading:true, error:null});
+    try {
+      const response = await axios.post(`${API_URL}/resend-verification`, {email});
+      set({message:response.data.message, isLoading:false});
+      return response.data;
+    } catch (error) {
+      set({
+        error:error.response?.data?.message || "Error sending verification email.",
         isLoading:false,
       });
       throw error;
@@ -81,7 +97,7 @@ export const useAuthStore = create((set) => ({
         isAuthenticated:true,
         isCheckingAuth:false,
       });    
-    } catch (error) {
+    } catch {
       set({
         error: null,
         isCheckingAuth:false,
@@ -105,7 +121,7 @@ export const useAuthStore = create((set) => ({
     }catch(error){
       set({
         isLoading:false,
-        error: error.response.data.message || "Error sending reset password email.",
+        error: error.response?.data?.message || "Error sending reset password email.",
       });
       throw error;
     };
@@ -126,7 +142,7 @@ export const useAuthStore = create((set) => ({
     }catch(error){
       set({
         isLoading: false,
-        error: error.response.data.message || "Error reseting password.",
+        error: error.response?.data?.message || "Error resetting password.",
       });
       throw error;
     };
