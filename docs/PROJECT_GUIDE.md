@@ -457,27 +457,27 @@ Uses `req.userId` set by `verifyToken` to find the current user, explicitly excl
 
 </details>
 
-### Mailtrap and Swagger
+### Email delivery and Swagger
 
 <details>
-<summary><code>backend/mailtrap/</code> — client, send functions, and templates</summary>
+<summary><code>backend/email/</code> — SMTP transport, send functions, and templates</summary>
 
-**`mailtrap.config.js`**
+**`email.config.js`**
 
-- `new MailtrapClient({ token: TOKEN })` creates the Mailtrap SDK client using `SENDING_ONBOARDING_API_TOKEN`.
-- `sender` is an object containing `email` from `EMAIL_DOMAIN` and a display name.
+- `nodemailer.createTransport(...)` configures one SMTP connection using `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and `SMTP_SECURE`.
+- `sender` uses the address in `EMAIL_DOMAIN` and a display name.
 
 **`emails.js`**
 
-- `sendVerificationEmail(email, verificationToken)` creates the SDK recipient array, inserts the code into `VERIFICATION_EMAIL_TEMPLATE`, and sends the verification message.
-- `sendWelcomeEmail(email, name)` sends the configured Mailtrap template UUID with variables for the recipient name and company name.
+- `sendVerificationEmail(email, verificationToken)` inserts the code into `VERIFICATION_EMAIL_TEMPLATE` and sends it through SMTP.
+- `sendWelcomeEmail(email, name)` renders the local welcome template and escapes the recipient's name before inserting it.
 - `sendPasswordResetEmail(email, resetURL)` inserts the reset link into the reset-request template and sends it.
 - `sendResetSuccessEmail(email)` sends the password-change confirmation template.
-- Each function is `async`, awaits `client.send(...)`, logs and rethrows send errors. Controllers catch these errors so the intended API response can still be returned.
+- All four functions use `transporter.sendMail(...)`; send failures are logged and rethrown. Controllers catch these errors so the intended API response can still be returned.
 
 **`emailTemplates.js`**
 
-- `VERIFICATION_EMAIL_TEMPLATE`, `PASSWORD_RESET_REQUEST_TEMPLATE`, and `PASSWORD_RESET_SUCCESS_TEMPLATE` are exported HTML strings.
+- `WELCOME_EMAIL_TEMPLATE`, `VERIFICATION_EMAIL_TEMPLATE`, `PASSWORD_RESET_REQUEST_TEMPLATE`, and `PASSWORD_RESET_SUCCESS_TEMPLATE` are exported HTML strings.
 - `.replace("{verificationCode}", code)` and `.replace("{resetURL}", url)` substitute dynamic content before sending.
 
 </details>
@@ -712,7 +712,7 @@ Base URL locally: `http://localhost:5000`. Every route below is prefixed by `/ap
 - A supported Node.js version for the installed Vite/Express dependencies.
 - npm.
 - MongoDB connection string (local or Atlas).
-- Mailtrap sending token and a sender email/domain configured for the account.
+- Mailtrap SMTP host, credentials, and sender email address configured for the account.
 
 ### Configure the backend
 
@@ -730,8 +730,12 @@ Fill in `.env`:
 | `PORT` | Backend port; defaults to `5000`. |
 | `JWT_SECRET` | Random signing secret of at least 32 characters. The example placeholder is rejected. |
 | `NODE_ENV` | Use `development` locally; use `production` behind HTTPS to enable Secure cookies. |
-| `SENDING_ONBOARDING_API_TOKEN` | Mailtrap API token used by its SDK. |
-| `EMAIL_DOMAIN` | Sender email address accepted by Mailtrap. |
+| `SMTP_HOST` | Mailtrap SMTP host (for example, `sandbox.smtp.mailtrap.io`). |
+| `SMTP_PORT` | SMTP port; defaults to `2525`. |
+| `SMTP_USER` | Mailtrap SMTP username. |
+| `SMTP_PASS` | Mailtrap SMTP password. |
+| `SMTP_SECURE` | Set to `true` when the SMTP server requires an implicit TLS connection; otherwise use `false`. |
+| `EMAIL_DOMAIN` | Sender email address verified or accepted by Mailtrap. |
 | `CLIENT_URL` | Exact frontend origin allowed by CORS and used in reset URLs; local value is `http://localhost:5173`. |
 
 Generate a local JWT secret with Node:
@@ -844,7 +848,7 @@ This guide explains the current code; it is not a substitute for a production se
 | Auth API | [`backend/routes/auth.route.js`](../backend/routes/auth.route.js), [`backend/controllers/auth.controllers.js`](../backend/controllers/auth.controllers.js) | Route middleware stacks and authentication business logic. |
 | Middleware | [`backend/middleware/validation.js`](../backend/middleware/validation.js), [`backend/middleware/rateLimiter.js`](../backend/middleware/rateLimiter.js), [`backend/middleware/verifyToken.js`](../backend/middleware/verifyToken.js) | Validate inputs, limit request rates, authenticate sessions. |
 | Auth helpers | [`backend/utils/generateVerificationToken.js`](../backend/utils/generateVerificationToken.js), [`backend/utils/generateTokenAndSetCookie.js`](../backend/utils/generateTokenAndSetCookie.js) | Generate verification codes and signed cookie sessions. |
-| Email | [`backend/mailtrap/mailtrap.config.js`](../backend/mailtrap/mailtrap.config.js), [`backend/mailtrap/emails.js`](../backend/mailtrap/emails.js), [`backend/mailtrap/emailTemplates.js`](../backend/mailtrap/emailTemplates.js) | Configure email SDK, send messages, define HTML templates. |
+| Email | [`backend/email/email.config.js`](../backend/email/email.config.js), [`backend/email/emails.js`](../backend/email/emails.js), [`backend/email/emailTemplates.js`](../backend/email/emailTemplates.js) | Configure SMTP, send messages, define HTML templates. |
 | API docs | [`backend/config/swagger.js`](../backend/config/swagger.js) | OpenAPI schema and reusable request/response helpers. |
 | Frontend bootstrap | [`frontend/index.html`](../frontend/index.html), [`frontend/src/main.jsx`](../frontend/src/main.jsx), [`frontend/src/App.jsx`](../frontend/src/App.jsx) | Browser document, React root, route tree and route guards. |
 | Frontend state | [`frontend/src/store/authStore.jsx`](../frontend/src/store/authStore.jsx) | Shared user/session state and Axios actions. |

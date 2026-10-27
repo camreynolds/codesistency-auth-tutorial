@@ -3,7 +3,7 @@ Project to explore auth authentication and password recovery in a MERN stack.
 
 # 🚀 Full-Stack Authentication System (MERN Stack)
 
-Un sistema de autenticación moderno, completo y seguro, desarrollado paso a paso siguiendo el curso avanzado de autenticación de **Codesistency**. Este proyecto cubre de extremo a extremo la implementación del **Backend**, configuración de bases de datos, lógica de envío de correos electrónicos transaccionales con **Mailtrap**, vistas e interacciones del **Frontend** en **React**, manejo de sesiones seguras mediante **JWT** y despliegue final de la aplicación.
+Un sistema de autenticación moderno, completo y seguro, desarrollado paso a paso siguiendo el curso avanzado de autenticación de **Codesistency**. Este proyecto cubre de extremo a extremo la implementación del **Backend**, configuración de bases de datos, lógica de envío de correos electrónicos transaccionales con **Nodemailer** y SMTP de Mailtrap, vistas e interacciones del **Frontend** en **React**, manejo de sesiones seguras mediante **JWT** y despliegue final de la aplicación.
 
 ---
 
@@ -24,7 +24,7 @@ For a step-by-step learning path, expandable explanations of the project's backe
 1. [⚙️ Configuración del Backend](#️-configuración-del-backend)
 2. [🗄️ Configuración de la Base de Datos](#️-configuración-de-la-base-de-datos)
 3. [🔐 Endpoints de Autenticación y Seguridad](#-endpoints-de-autenticación-y-seguridad)
-4. [📧 Sistema de Correo Electrónico (Mailtrap)](#-sistema-de-correo-electrónico-mailtrap)
+4. [📧 Sistema de Correo Electrónico (Nodemailer)](#-sistema-de-correo-electrónico-nodemailer)
 5. [🌐 Configuración del Frontend y Vistas UI](#-configuración-del-frontend-y-vistas-ui)
 6. [🔄 Implementación de Lógica y Consumo de Endpoints](#-implementación-de-lógica-y-consumo-de-endpoints)
 
@@ -66,9 +66,9 @@ Start the backend with `npm run dev`, then open [http://localhost:5000/api-docs]
 
 ---
 
-## 📧 Sistema de Correo Electrónico (Mailtrap)
+## 📧 Sistema de Correo Electrónico (Nodemailer)
 
-Integración completa con el SDK de **Mailtrap** para el envío de correos transaccionales:
+Integración de **Nodemailer** con el servidor SMTP de Mailtrap para enviar correos transaccionales:
 
 *   **Building a Welcome Email Template**: Diseño e implementación de plantillas HTML profesionales para dar la bienvenida a nuevos usuarios.
 *   **Sending Verify Account Email**: Envío automatizado de códigos/tokens de verificación de 6 dígitos.

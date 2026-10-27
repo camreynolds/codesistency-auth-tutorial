@@ -3,7 +3,8 @@ import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 import { generateVerificationToken } from "../utils/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail,sendWelcomeEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../mailtrap/emails.js"
+// Authentication mail now uses the shared Nodemailer SMTP delivery module.
+import { sendVerificationEmail,sendWelcomeEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../email/emails.js"
 
 // Valid bcrypt hash used to equalize login timing: when no user is found we
 // still run a bcrypt.compare against this dummy hash, so a non-existent email
