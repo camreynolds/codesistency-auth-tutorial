@@ -48,6 +48,10 @@ Este proyecto está basado en los conceptos, arquitectura y desarrollo paso a pa
 
 El núcleo del sistema de autenticación incluye los siguientes endpoints gestionados con tokens JWT almacenados en cookies HTTP-only seguras:
 
+### API documentation
+
+Start the backend with `npm run dev`, then open [http://localhost:5000/api-docs](http://localhost:5000/api-docs) for the interactive Swagger UI or [http://localhost:5000/api-docs.json](http://localhost:5000/api-docs.json) for the OpenAPI specification. The documented session endpoints use the HTTP-only `token` cookie set by login or successful email verification.
+
 *   **Signup Endpoint**: Registro de nuevos usuarios con cifrado de contraseñas mediante **bcryptjs**.
 *   **Login Endpoint**: Validación de credenciales y generación de sesiones activas.
 *   **Logout Endpoint**: Cierre de sesión seguro y destrucción de cookies de autenticación.

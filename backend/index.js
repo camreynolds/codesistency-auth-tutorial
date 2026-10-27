@@ -7,6 +7,8 @@ import helmet from "helmet";
 
 import { connectDB } from "./db/connectDB.js";
 import authRoutes from "./routes/auth.route.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpecification } from "./config/swagger.js";
 
 // Fail fast if the JWT signing secret is missing or too weak, so tokens are
 // never signed with a guessable secret.
@@ -31,6 +33,29 @@ app.use(cors({origin: process.env.CLIENT_URL || "http://localhost:5173", credent
 
 app.use(express.json()); // allows us to parse incoming request:req.body  
 app.use(cookieParser()); // allows us to parse incoming cookies.
+
+app.get("/api-docs.json", (req, res) => {
+  res.json(swaggerSpecification);
+});
+app.use(
+  "/api-docs",
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        fontSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+      },
+    },
+  }),
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpecification, {
+    swaggerOptions: { persistAuthorization: true },
+  })
+);
 
 app.use("/api/auth/", authRoutes);
 
