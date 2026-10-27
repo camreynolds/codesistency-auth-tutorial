@@ -13,6 +13,12 @@ Este proyecto está basado en los conceptos, arquitectura y desarrollo paso a pa
 
 ---
 
+## 📚 Interactive Project Guide
+
+For a step-by-step learning path, expandable explanations of the project's backend and frontend functions, API flows, technologies, setup, and practice exercises, open the [Interactive MERN Project Guide](docs/PROJECT_GUIDE.md).
+
+---
+
 ## 📋 Tabla de Contenidos
 
 1. [⚙️ Configuración del Backend](#️-configuración-del-backend)
